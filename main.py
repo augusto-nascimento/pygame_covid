@@ -19,9 +19,8 @@ class App:
         self.screen = pygame.display.set_mode(self.size, 0, 0)
         pygame.init()
         self.run = True
-        self.report = Report()
         self.infecteds = pygame.sprite.Group()
-        self.health = pygame.sprite.Group()
+        self.healthy = pygame.sprite.Group()
         self.after_sick = pygame.sprite.Group()
 
     def handle_events(self):
@@ -51,8 +50,8 @@ class App:
             y = randint(0, 500)
 
             person = Person((x, y))
-            person.set_speed(100)
-            self.infecteds.add(person)
+            person.set_speed(0)
+            self.healthy.add(person)
 
         # Criando restante dos pontos
         for i in range(person_total - person_contaminated - person_lockdown):
@@ -60,22 +59,20 @@ class App:
             y = randint(0, 500)
             person = Person((x, y))
             person.set_speed(100)
-            self.health.add(person)
-
-        return person_total
+            self.healthy.add(person)
 
     def loop(self):
 
         # criando pessoas
-        total_person = self.create_person()
+        self.create_person()
 
         self.infecteds.draw(self.screen)
-        self.health.draw(self.screen)
+        self.healthy.draw(self.screen)
 
         clock = pygame.time.Clock()
 
         chart_report = pygame.sprite.RenderPlain(
-            ChartReport(total_person)
+            ChartReport()
         )
 
         while self.run:
@@ -88,22 +85,22 @@ class App:
             self.handle_events()
 
             # Atualiza Elementos
-            self.health.update()
+            self.healthy.update()
             self.infecteds.update()
             self.after_sick.update()
 
-            colide = pygame.sprite.groupcollide(
-                self.health, self.infecteds, False, False
+            collision = pygame.sprite.groupcollide(
+                self.healthy, self.infecteds, False, False
             )
 
             # verifico se houve encontro entre pessoas
             # saudáveis e pessoas contaminadas
-            for p in colide:
+            for p in collision:
                 if p.get_status() == StatusHealth.healthy:
                     p.set_status(StatusHealth.contaminated)
-                    self.health.remove(p)
-                    self.infecteds.add(p)
                     p.draw()
+                    self.healthy.remove(p)
+                    self.infecteds.add(p)
 
             # verifico se alguém que estava doente
             # se recuperou ou morreu
@@ -113,11 +110,10 @@ class App:
                 ]:
                     self.infecteds.remove(p)
                     self.after_sick.add(p)
-                    p.draw()
 
             # desenho as pessoas em suas novas posicoes e status
             self.infecteds.draw(self.screen)
-            self.health.draw(self.screen)
+            self.healthy.draw(self.screen)
             self.after_sick.draw(self.screen)
 
             # atualizo graficos

@@ -31,8 +31,6 @@ class Person(Sprite):
         self.direction_x = randint(5 * (-1), 5)
         self.direction_y = randint(5 * (-1), 5)
 
-        self.draw()
-
     def get_status(self):
         return self.__status
 
@@ -43,11 +41,11 @@ class Person(Sprite):
     def set_speed(self, speed=1):
         self.__speed = speed
         self.__pause = 100 - self.__speed
-
+    
     def draw(self):
         draw.ellipse(
             self.image, self.__status.color, [0, 0, 4, 4], 0
-        )
+        )        
 
     def update(self):
 
@@ -64,6 +62,7 @@ class Person(Sprite):
                     self.set_speed(10)
                 else:
                     self.set_status(StatusHealth.recovered)
+                    self.set_speed(100)
 
         if self.__status in [StatusHealth.sick, StatusHealth.sick_icu]:
             if self.__time_after_sick:
@@ -76,6 +75,7 @@ class Person(Sprite):
                         self.set_status(StatusHealth.dead)
                     else:
                         self.set_status(StatusHealth.recovered)
+                        self.set_speed(100)
 
         if self.__pause:
             self.__pause -= 1
@@ -101,3 +101,7 @@ class Person(Sprite):
             self.direction_x = randint(5 * (-1), 5)
 
         self.rect.y += self.direction_y
+
+        draw.ellipse(
+            self.image, self.__status.color, [0, 0, 4, 4], 0
+        )
